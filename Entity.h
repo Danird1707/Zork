@@ -18,7 +18,7 @@ class Entity {
 
 public:
 
-    Entity(EntityType type, std::string& name, std::string& description);
+    Entity(EntityType type, const std::string& name, const std::string& description);
     ~Entity();
     EntityType getType() const;
 
