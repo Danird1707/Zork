@@ -1,13 +1,13 @@
 #include <iostream>
+#include "World.h"
 
 using namespace std;
 
 
 int main() {
-	string playerInput;
-	cout << "Welcome to Zork!\n";
-	cout << "Insert a number\n";
-	cin >> playerInput;
-	cout << "Your number is " << playerInput << endl;
+	World world;
+
+	world.gameloop();
+
 	return 0;
 }
