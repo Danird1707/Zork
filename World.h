@@ -2,10 +2,12 @@
 #define WORLD_H
 
 #include <vector>
+#include <string>
+
 
 class Entity;
 class Player;
-
+class Room;
 
 class World {
 
@@ -19,6 +21,13 @@ private:
 	std::vector<Entity*> entities;
 	bool isRunning;
 	Player* player;
+
+private:
+	void createWorld();
+	void parseCommand(const std::string& input);
+
+	void look() const;
+	void showHelp() const;
 };
 
 #endif
