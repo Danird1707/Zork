@@ -26,6 +26,9 @@ private:
 	void createWorld();
 	void parseCommand(const std::string& input);
 
+	void takeItem(const std::string& itemName);
+	void dropItem(const std::string& itemName);
+	void showInventory() const;
 	void look() const;
 	void showHelp() const;
 };

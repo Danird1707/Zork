@@ -5,6 +5,8 @@
 #include "Exit.h"
 #include "Player.h"
 #include "Item.h"
+#include <sstream>
+
 using namespace std;
 
 World::World() {
@@ -56,14 +58,14 @@ void World::gameloop() {
 
     std::string input;
 
-    std::cout << "Welcome to Mini Zork.\n";
-    std::cout << "Type 'help' to see available commands.\n";
+    cout << "Welcome to Mini Zork.\n";
+    cout << "Type 'help' to see available commands.\n";
 
     look();
 
     while (isRunning) {
-        std::cout << "\n> ";
-        cin >> input;
+        cout << "\n> ";
+        std::getline(cin, input);
 
         if (!input.empty()) {
             parseCommand(input);
@@ -74,18 +76,36 @@ void World::gameloop() {
 //This function recognises the input command of the player
 void World::parseCommand(const std::string& input)
 {
-    if (input == "quit") {
+    //Use the stringstream to get commands with format (action, entity)
+    stringstream ss(input);
+
+    string command;
+    string argument;
+
+    ss >> command;
+    ss >> argument;
+
+    if (command == "quit") {
         isRunning = false;
-        std::cout << "Goodbye.\n";
+        cout << "Goodbye.\n";
     }
-    else if (input == "help") {
+    else if (command == "help") {
         showHelp();
     }
-    else if (input == "look") {
+    else if (command == "look") {
         look();
     }
+    else if (command == "take" || command == "pickup") {
+        takeItem(argument);
+    }
+    else if (command == "drop") {
+        dropItem(argument);
+    }
+    else if (command == "inventory" || command == "inv") {
+        showInventory();
+    }
     else {
-        std::cout << "I don't understand that command.\n";
+        cout << "I don't understand that command.\n";
     }
 }
 
@@ -98,21 +118,86 @@ void World::showHelp() const {
 void World::look() const {
     Room* currentRoom = player->getLocation();
 
-    std::cout << "\n" << currentRoom->getName() << "\n";
-    std::cout << currentRoom->getDescription() << "\n";
+    cout << "\n" << currentRoom->getName() << "\n";
+    cout << currentRoom->getDescription() << "\n";
 
-    std::cout << "\nYou see:\n";
+    cout << "\nYou see:\n";
 
     bool foundSomething = false;
 
     for (Entity* entity : currentRoom->GetContains()) {
         if (entity->getType() == EntityType::Item) {
-            std::cout << "- " << entity->getName() << "\n";
+            cout << "- " << entity->getName() << "\n";
             foundSomething = true;
         }
     }
 
     if (!foundSomething) {
-        std::cout << "Nothing interesting.\n";
+        cout << "Nothing interesting.\n";
+    }
+}
+
+void World::takeItem(const std::string& itemName)
+{
+    if (itemName.empty()) {
+        cout << "Take what?\n";
+        return;
+    }
+
+    Room* currentRoom = player->getLocation();
+
+    Entity* entity = currentRoom->Find(itemName);
+
+    if (entity == nullptr) {
+        cout << "There is nothing here.\n";
+        return;
+    }
+
+    if (entity->getType() != EntityType::Item) {
+        cout << "You can't take that.\n";
+        return;
+    }
+
+    currentRoom->Remove(entity);
+    player->Add(entity);
+
+    cout << "You picked up the " << entity->getName() << ".\n";
+}
+
+void World::dropItem(const std::string& itemName)
+{
+    if (itemName.empty()) {
+        cout << "Drop what?\n";
+        return;
+    }
+
+    Entity* entity = player->Find(itemName);
+
+    if (entity == nullptr) {
+        cout << "You don't have " << itemName << ".\n";
+        return;
+    }
+
+    player->Remove(entity);
+    player->getLocation()->Add(entity);
+
+    cout << "You dropped the " << entity->getName() << ".\n";
+}
+
+void World::showInventory() const
+{
+    const std::list<Entity*>& inventory = player->GetContains();
+
+    if (inventory.empty()) {
+        cout << "Your inventory is empty.\n";
+        return;
+    }
+
+    cout << "You are carrying:\n";
+
+    for (Entity* entity : inventory) {
+        if (entity->getType() == EntityType::Item) {
+            cout << "- " << entity->getName() << "\n";
+        }
     }
 }
