@@ -1,12 +1,16 @@
-#include "World.h"
 #include<iostream>
-
-
+#include "World.h"
+#include "Entity.h"
+#include "Room.h"
+#include "Exit.h"
+#include "Player.h"
+#include "Item.h"
 using namespace std;
 
 World::World() {
 	player = nullptr;
 	isRunning = true;
+    createWorld();
 }
 
 World::~World()
@@ -19,6 +23,31 @@ World::~World()
 }
 
 void World::createWorld() {
+
+    //Create the rooms
+    Room* hall = new Room("Hall", "You are in a cold stone hall.");
+    Room* kitchen = new Room("Kitchen", "You are in an old kitchen.");
+    Room* library = new Room("Library", "You are in a dusty library.");
+
+    //Put the rooms in the entity list of the world
+    entities.push_back(hall);
+    entities.push_back(kitchen);
+    entities.push_back(library);
+
+    //Create the objects
+    Item* key = new Item("key", "A small rusty key.");
+    Item* box = new Item("box", "A wooden box.");
+    
+    //Add items to the world's entity list
+    entities.push_back(key);
+    entities.push_back(box);
+    //Add items to the room entity list
+    hall->Add(box);
+    kitchen->Add(key);
+
+    //Create the player and assign where it starts
+    player = new Player("player", "The main character.", hall);
+    entities.push_back(player);
 
 }
 
@@ -65,7 +94,25 @@ void World::showHelp() const {
     cout << "Here is the help";
 }
 
-//This function shows the actual ubication of the player
+//This function shows the actual ubication of the player and the entities in the room
 void World::look() const {
-    cout << "You are in this room";
+    Room* currentRoom = player->getLocation();
+
+    std::cout << "\n" << currentRoom->getName() << "\n";
+    std::cout << currentRoom->getDescription() << "\n";
+
+    std::cout << "\nYou see:\n";
+
+    bool foundSomething = false;
+
+    for (Entity* entity : currentRoom->GetContains()) {
+        if (entity->getType() == EntityType::Item) {
+            std::cout << "- " << entity->getName() << "\n";
+            foundSomething = true;
+        }
+    }
+
+    if (!foundSomething) {
+        std::cout << "Nothing interesting.\n";
+    }
 }

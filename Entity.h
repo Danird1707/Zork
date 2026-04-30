@@ -28,6 +28,14 @@ public:
     std::string getDescription() const;
     void setDescription(const std::string description);
 
+    void Add(Entity* entity);
+    void Remove(Entity* entity);
+
+    Entity* Find(const std::string& name) const;
+    const std::list<Entity*>& GetContains() const;
+
+
+
 	virtual void Update();
 protected:
     EntityType m_type;

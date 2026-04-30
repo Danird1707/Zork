@@ -32,6 +32,35 @@ void Entity::setDescription(const std::string description) {
 	m_description = description;
 }
 
+void Entity::Add(Entity* entity)
+{
+	if (entity != nullptr) {
+		m_contains.push_back(entity);
+	}
+}
+
+void Entity::Remove(Entity* entity)
+{
+	m_contains.remove(entity);
+}
+
+//Find an object
+Entity* Entity::Find(const std::string& name) const
+{
+	for (Entity* entity : m_contains) {
+		if (entity != nullptr && entity->getName() == name) {
+			return entity;
+		}
+	}
+
+	return nullptr;
+}
+
+const std::list<Entity*>& Entity::GetContains() const
+{
+	return m_contains;
+}
+
 void Entity::Update() {
 
 }
