@@ -36,6 +36,7 @@ private:
 	Entity* findInPlayerOrRoom(const std::string& name) const;
 	void openItem(const std::string& itemName);
 	void unlockExit(const std::string& directionText, const std::string& keyName);
+	void readItem(const std::string& itemName);
 };
 
 #endif

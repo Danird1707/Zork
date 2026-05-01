@@ -73,21 +73,26 @@ void World::createWorld() {
     armory->Add(armoryToTreasure);
     treasureRoom->Add(treasureToArmory);
 
-    //Create the objects
+    //Create the items
     Item* key = new Item("key", "A small rusty key.");
     Item* box = new Item("box", "A wooden box.", true);
     Item* specialKey = new Item("special_key", "A silver key with a star-shaped head.");
+    Item* letter = new Item("letter", "A sealed letter rests on a small stone table.", true);
+    Item* note = new Item("note", "A folded note with hurried handwriting.");
 
     //Add items to the world's entity list
     entities.push_back(key);
     entities.push_back(box);
     entities.push_back(specialKey);
+    entities.push_back(letter);
+    entities.push_back(note);
 
     //Add items to the room entity list
     hall->Add(box);
     kitchen->Add(key);
     library->Add(specialKey);
-
+    treasureRoom->Add(letter);
+    box->Add(note);
     //Create the player and assign where it starts
     player = new Player("player", "The main character.", hall);
     entities.push_back(player);
@@ -174,6 +179,9 @@ void World::parseCommand(const std::string& input)
         else {
             cout << "Use: unlock direction with key\n";
         }
+    }
+    else if (command == "read") {
+        readItem(firstArg);
     }
     else {
         cout << "I don't understand that command.\n";
@@ -453,9 +461,14 @@ void World::openItem(const std::string& itemName)
         return;
     }
 
-    cout << "Inside you see:\n";
+    cout << "Something falls out:\n";
 
-    for (Entity* contained : item->GetContains()) {
+    while (!item->GetContains().empty()) {
+        Entity* contained = item->GetContains().front();
+
+        item->Remove(contained);
+        player->getLocation()->Add(contained);
+
         cout << "- " << contained->getName() << "\n";
     }
 }
@@ -497,4 +510,40 @@ void World::unlockExit(const std::string& directionText, const std::string& keyN
     }
 
     cout << "There is no door that way.\n";
+}
+
+//Function for read notes in items
+void World::readItem(const std::string& itemName)
+{
+    if (itemName.empty()) {
+        cout << "Read what?\n";
+        return;
+    }
+
+    Entity* entity = player->Find(itemName);
+
+    if (entity == nullptr) {
+        entity = player->getLocation()->Find(itemName);
+    }
+
+    if (entity == nullptr) {
+        cout << "You don't see any " << itemName << " here.\n";
+        return;
+    }
+
+    if (entity->getName() == "note") {
+        cout << "The note says:\n";
+        cout << "\"Find the special key. Only it can open the treasure room.\"\n";
+        return;
+    }
+
+    if (entity->getName() == "letter") {
+        cout << "The letter says:\n";
+        cout << "\"Congratulations, adventurer. You have completed the game.\"\n";
+        cout << "\nYou win!\n";
+        isRunning = false;
+        return;
+    }
+
+    cout << "There is nothing useful written on it.\n";
 }
