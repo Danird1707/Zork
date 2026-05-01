@@ -167,6 +167,14 @@ void World::parseCommand(const std::string& input)
     else if (command == "open") {
         openItem(firstArg);
     }
+    else if (command == "unlock") {
+        if (connector == "with") {
+            unlockExit(firstArg, secondArg);
+        }
+        else {
+            cout << "Use: unlock direction with key\n";
+        }
+    }
     else {
         cout << "I don't understand that command.\n";
     }
@@ -326,14 +334,17 @@ void World::go(const std::string& directionText)
         return;
     }
 
-
     for (Entity* entity : currentRoom->GetContains()) {
         if (entity->getType() == EntityType::Exit) {
             Exit* exit = static_cast<Exit*>(entity);
 
             if (exit->getDirection() == direction) {
+
+                if (exit->isLocked()) {
+                    cout << "The door is locked.\n";
+                    return;
+                }
                 player->SetLocation(exit->getDestination());
-                look();
                 return;
             }
         }
@@ -447,4 +458,43 @@ void World::openItem(const std::string& itemName)
     for (Entity* contained : item->GetContains()) {
         cout << "- " << contained->getName() << "\n";
     }
+}
+
+//Function that unlocks key closed doors
+void World::unlockExit(const std::string& directionText, const std::string& keyName)
+{
+    Direction direction = Exit::StringToDirection(directionText);
+
+    if (direction == Direction::Unknown) {
+        cout << "That is not a valid direction.\n";
+        return;
+    }
+
+    Entity* key = player->Find(keyName);
+
+    if (key == nullptr) {
+        cout << "You don't have the " << keyName << ".\n";
+        return;
+    }
+
+    Room* currentRoom = player->getLocation();
+
+    for (Entity* entity : currentRoom->GetContains()) {
+        if (entity->getType() == EntityType::Exit) {
+            Exit* exit = static_cast<Exit*>(entity);
+
+            if (exit->getDirection() == direction) {
+                if (exit->unlockWith(key)) {
+                    cout << "You unlock the door.\n";
+                }
+                else {
+                    cout << "The key does not fit.\n";
+                }
+
+                return;
+            }
+        }
+    }
+
+    cout << "There is no door that way.\n";
 }

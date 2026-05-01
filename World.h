@@ -35,6 +35,7 @@ private:
 	void putItemInItem(const std::string& itemName, const std::string& containerName);
 	Entity* findInPlayerOrRoom(const std::string& name) const;
 	void openItem(const std::string& itemName);
+	void unlockExit(const std::string& directionText, const std::string& keyName);
 };
 
 #endif
