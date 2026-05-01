@@ -50,6 +50,8 @@ void World::createWorld() {
     Exit* libraryToHall = new Exit(library, hall, Direction::West, "A wooden door leading west.");
     Exit* libraryToArmory = new Exit(library, armory, Direction::North, "A narrow passage leading north.");
     Exit* armoryToLibrary = new Exit(armory, library, Direction::South, "A narrow passage leading south.");
+    Exit* armoryToTreasure = new Exit(armory, treasureRoom, Direction::East, "A heavy locked door leading east.", true, "special_key");
+    Exit* treasureToArmory = new Exit(treasureRoom, armory, Direction::West, "A heavy door leading west.");
 
     //Add the exits to the entity list
     entities.push_back(hallToKitchen);
@@ -58,6 +60,8 @@ void World::createWorld() {
     entities.push_back(libraryToHall);
     entities.push_back(libraryToArmory);
     entities.push_back(armoryToLibrary);
+    entities.push_back(armoryToTreasure);
+    entities.push_back(treasureToArmory);
 
     //Define the exits of the rooms
     hall->Add(hallToKitchen);
@@ -66,18 +70,23 @@ void World::createWorld() {
     library->Add(libraryToHall);
     library->Add(libraryToArmory);
     armory->Add(armoryToLibrary);
+    armory->Add(armoryToTreasure);
+    treasureRoom->Add(treasureToArmory);
 
     //Create the objects
     Item* key = new Item("key", "A small rusty key.");
     Item* box = new Item("box", "A wooden box.", true);
-    
+    Item* specialKey = new Item("special_key", "A silver key with a star-shaped head.");
+
     //Add items to the world's entity list
     entities.push_back(key);
     entities.push_back(box);
+    entities.push_back(specialKey);
 
     //Add items to the room entity list
     hall->Add(box);
     kitchen->Add(key);
+    library->Add(specialKey);
 
     //Create the player and assign where it starts
     player = new Player("player", "The main character.", hall);

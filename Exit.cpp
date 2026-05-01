@@ -2,11 +2,14 @@
 #include <string>
 
 
-Exit::Exit(Room* source, Room* destination, Direction direction, const std::string& description) : Entity(EntityType::Exit, DirectionToString(direction), description){
+Exit::Exit(Room* source, Room* destination, Direction direction, const std::string& description, bool locked, const std::string& requiredKeyName)
+    : Entity(EntityType::Exit, DirectionToString(direction), description){
 	m_source = source;
     m_destination = destination;
     m_direction = direction;
     m_description = description;
+    m_locked = locked;
+    m_requiredKeyName = requiredKeyName;
 }
 
 Exit::~Exit()
@@ -37,6 +40,7 @@ Direction Exit::StringToDirection(const std::string& text)
     return Direction::Unknown;
 }
 
+//Converts the enum class direction object to a string
 std::string Exit::DirectionToString(Direction direction)
 {
     switch (direction) {
@@ -55,4 +59,29 @@ std::string Exit::DirectionToString(Direction direction)
     default:
         return "unknown";
     }
+}
+
+//Checks if the exit door is open or not
+bool Exit::isLocked() const
+{
+    return m_locked;
+}
+
+//Shows if the exit needs a key to open
+bool Exit::unlockWith(Entity* key)
+{
+    if (!m_locked) {
+        return true;
+    }
+
+    if (key == nullptr) {
+        return false;
+    }
+
+    if (key->getName() == m_requiredKeyName) {
+        m_locked = false;
+        return true;
+    }
+
+    return false;
 }
