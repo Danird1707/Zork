@@ -9,12 +9,14 @@
 
 using namespace std;
 
+//Constructor
 World::World() {
 	player = nullptr;
 	isRunning = true;
     createWorld();
 }
 
+//Destructor
 World::~World()
 {
     for (Entity* entity : entities) {
@@ -24,35 +26,46 @@ World::~World()
     entities.clear();
 }
 
+//The function that creates all the game world
 void World::createWorld() {
 
     //Create the rooms
     Room* hall = new Room("Hall", "You are in a cold stone hall.");
     Room* kitchen = new Room("Kitchen", "You are in an old kitchen.");
     Room* library = new Room("Library", "You are in a dusty library.");
+    Room* armory = new Room("Armory", "You are in an old armory. Broken weapons cover the walls.");
+    Room* treasureRoom = new Room("Treasure Room", "A quiet room lit by golden light.");
 
     //Put the rooms in the entity list of the world
     entities.push_back(hall);
     entities.push_back(kitchen);
     entities.push_back(library);
+    entities.push_back(armory);
+    entities.push_back(treasureRoom);
 
     //Create the connections between rooms
     Exit* hallToKitchen = new Exit(hall, kitchen, Direction::North, "A passage leading north.");
     Exit* kitchenToHall = new Exit(kitchen, hall, Direction::South, "A passage leading south.");
-
     Exit* hallToLibrary = new Exit(hall, library, Direction::East, "A wooden door leading east.");
     Exit* libraryToHall = new Exit(library, hall, Direction::West, "A wooden door leading west.");
+    Exit* libraryToArmory = new Exit(library, armory, Direction::North, "A narrow passage leading north.");
+    Exit* armoryToLibrary = new Exit(armory, library, Direction::South, "A narrow passage leading south.");
 
+    //Add the exits to the entity list
     entities.push_back(hallToKitchen);
     entities.push_back(kitchenToHall);
     entities.push_back(hallToLibrary);
     entities.push_back(libraryToHall);
+    entities.push_back(libraryToArmory);
+    entities.push_back(armoryToLibrary);
 
     //Define the exits of the rooms
     hall->Add(hallToKitchen);
     kitchen->Add(kitchenToHall);
     hall->Add(hallToLibrary);
     library->Add(libraryToHall);
+    library->Add(libraryToArmory);
+    armory->Add(armoryToLibrary);
 
     //Create the objects
     Item* key = new Item("key", "A small rusty key.");
@@ -61,6 +74,7 @@ void World::createWorld() {
     //Add items to the world's entity list
     entities.push_back(key);
     entities.push_back(box);
+
     //Add items to the room entity list
     hall->Add(box);
     kitchen->Add(key);
@@ -71,6 +85,7 @@ void World::createWorld() {
 
 }
 
+//Function that keeps the game running
 void World::gameloop() {
 
 
