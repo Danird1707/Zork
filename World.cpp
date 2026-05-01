@@ -97,11 +97,15 @@ void World::parseCommand(const std::string& input)
     //Use the stringstream to get commands with format (action, entity)
     stringstream ss(input);
 
-    string command;
-    string argument;
+    std::string command;
+    std::string firstArg;
+    std::string connector;
+    std::string secondArg;
 
     ss >> command;
-    ss >> argument;
+    ss >> firstArg;
+    ss >> connector;
+    ss >> secondArg;
 
     if (command == "quit") {
         isRunning = false;
@@ -114,21 +118,29 @@ void World::parseCommand(const std::string& input)
         look();
     }
     else if (command == "take" || command == "pickup") {
-        takeItem(argument);
+        takeItem(firstArg);
     }
     else if (command == "drop") {
-        dropItem(argument);
+        dropItem(firstArg);
     }
     else if (command == "inventory" || command == "inv") {
         showInventory();
     }
     else if (command == "go") {
-        go(argument);
+        go(firstArg);
     }
     else if (
         command == "north" || command == "south" || command == "east" ||  
         command == "west" || command == "up" || command == "down") {
         go(command);
+    }
+    else if (command == "put") {
+        if (connector == "in") {
+            putItemInItem(firstArg, secondArg);
+        }
+        else {
+            cout << "Use: put item in container\n";
+        }
     }
     else {
         cout << "I don't understand that command.\n";
@@ -257,4 +269,59 @@ void World::go(const std::string& directionText)
         }
     }
     cout << "You can't go that way.\n";
+}
+
+//Auxiliar function for find the the container where put an object
+Entity* World::findInPlayerOrRoom(const std::string& name) const
+{
+    Entity* entity = player->Find(name);
+
+    if (entity != nullptr) {
+        return entity;
+    }
+
+    return player->getLocation()->Find(name);
+}
+
+void World::putItemInItem(const std::string& itemName, const std::string& containerName)
+{
+    if (itemName.empty() || containerName.empty()) {
+        cout << "Use: put item in container\n";
+        return;
+    }
+
+    Entity* item = player->Find(itemName);
+
+    if (item == nullptr) {
+        cout << "You don't have " << itemName << ".\n";
+        return;
+    }
+
+    if (item->getType() != EntityType::Item) {
+        cout << "You can't put that inside anything.\n";
+        return;
+    }
+
+    Entity* container = findInPlayerOrRoom(containerName);
+
+    if (container == nullptr) {
+        cout << "There is no " << containerName << " here.\n";
+        return;
+    }
+
+    if (container->getType() != EntityType::Item) {
+        cout << "That is not a container.\n";
+        return;
+    }
+
+    if (item == container) {
+        cout << "You can't put something inside itself.\n";
+        return;
+    }
+
+    player->Remove(item);
+    container->Add(item);
+
+    cout << "You put the " << item->getName()
+        << " inside the " << container->getName() << ".\n";
 }

@@ -32,6 +32,8 @@ private:
 	void look() const;
 	void showHelp() const;
 	void go(const std::string& directionText);
+	void putItemInItem(const std::string& itemName, const std::string& containerName);
+	Entity* findInPlayerOrRoom(const std::string& name) const;
 };
 
 #endif
