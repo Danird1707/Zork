@@ -6,8 +6,7 @@ Zork is a text adventure game written in C++. The player explores several rooms,
 
 ## Authors
 
-- Your Name
-- Partner Name, if any
+- Daniel Rosa Díaz
 
 ## Repository
 
