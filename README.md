@@ -10,7 +10,7 @@ Zork is a text adventure game written in C++. The player explores several rooms,
 
 ## Repository
 
-https://github.com/your-user/your-repository
+https://github.com/Danird1707/Zork.git
 
 ## License
 
