@@ -34,6 +34,7 @@ private:
 	void go(const std::string& directionText);
 	void putItemInItem(const std::string& itemName, const std::string& containerName);
 	Entity* findInPlayerOrRoom(const std::string& name) const;
+	void openItem(const std::string& itemName);
 };
 
 #endif

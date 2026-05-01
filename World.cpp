@@ -56,7 +56,7 @@ void World::createWorld() {
 
     //Create the objects
     Item* key = new Item("key", "A small rusty key.");
-    Item* box = new Item("box", "A wooden box.");
+    Item* box = new Item("box", "A wooden box.", true);
     
     //Add items to the world's entity list
     entities.push_back(key);
@@ -140,6 +140,9 @@ void World::parseCommand(const std::string& input)
             cout << "Use: put item in container\n";
         }
     }
+    else if (command == "open") {
+        openItem(firstArg);
+    }
     else {
         cout << "I don't understand that command.\n";
     }
@@ -192,11 +195,20 @@ void World::look() const {
             cout << "- " << entity->getName() << ": "
                 << entity->getDescription() << "\n";
 
-            if (!entity->GetContains().empty()) {
-                cout << "  It contains:\n";
+            Item* item = static_cast<Item*>(entity);
 
-                for (Entity* contained : entity->GetContains()) {
-                    cout << "  - " << contained->getName() << "\n";
+            if (item->CanOpen()) {
+                if (item->IsOpen()) {
+                    if (item->GetContains().empty()) {
+                        cout << "  It is open and empty.\n";
+                    }
+                    else {
+                        cout << "  It contains:\n";
+
+                        for (Entity* contained : item->GetContains()) {
+                            cout << "  - " << contained->getName() << "\n";
+                        }
+                    }
                 }
             }
 
@@ -317,6 +329,7 @@ Entity* World::findInPlayerOrRoom(const std::string& name) const
     return player->getLocation()->Find(name);
 }
 
+//Function to put an item inside another.
 void World::putItemInItem(const std::string& itemName, const std::string& containerName)
 {
     if (itemName.empty() || containerName.empty()) {
@@ -358,4 +371,56 @@ void World::putItemInItem(const std::string& itemName, const std::string& contai
 
     cout << "You put the " << item->getName()
         << " inside the " << container->getName() << ".\n";
+}
+
+//Function for open Items and reveal what is inside
+void World::openItem(const std::string& itemName)
+{
+    if (itemName.empty()) {
+        cout << "Open what?\n";
+        return;
+    }
+
+    Entity* entity = player->Find(itemName);
+
+    if (entity == nullptr) {
+        entity = player->getLocation()->Find(itemName);
+    }
+
+    if (entity == nullptr) {
+        cout << "There is no " << itemName << " here.\n";
+        return;
+    }
+
+    if (entity->getType() != EntityType::Item) {
+        cout << "You can't open that.\n";
+        return;
+    }
+
+    Item* item = static_cast<Item*>(entity);
+
+    if (!item->CanOpen()) {
+        cout << "You can't open the " << item->getName() << ".\n";
+        return;
+    }
+
+    if (item->IsOpen()) {
+        cout << "The " << item->getName() << " is already open.\n";
+        return;
+    }
+
+    item->Open();
+
+    cout << "You open the " << item->getName() << ".\n";
+
+    if (item->GetContains().empty()) {
+        cout << "It is empty.\n";
+        return;
+    }
+
+    cout << "Inside you see:\n";
+
+    for (Entity* contained : item->GetContains()) {
+        cout << "- " << contained->getName() << "\n";
+    }
 }
