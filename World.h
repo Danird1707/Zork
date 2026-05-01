@@ -37,6 +37,7 @@ private:
 	void openItem(const std::string& itemName);
 	void unlockExit(const std::string& directionText, const std::string& keyName);
 	void readItem(const std::string& itemName);
+	void useItemOn(const std::string& itemName, const std::string& targetName);
 };
 
 #endif

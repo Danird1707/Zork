@@ -79,6 +79,8 @@ void World::createWorld() {
     Item* specialKey = new Item("special_key", "A silver key with a star-shaped head.");
     Item* letter = new Item("letter", "A sealed letter rests on a small stone table.", true);
     Item* note = new Item("note", "A folded note with hurried handwriting.");
+    Item* lever = new Item("lever", "A small iron lever.");
+    Item* lockbox = new Item("lockbox", "A locked metal box.", true);
 
     //Add items to the world's entity list
     entities.push_back(key);
@@ -86,13 +88,17 @@ void World::createWorld() {
     entities.push_back(specialKey);
     entities.push_back(letter);
     entities.push_back(note);
+    entities.push_back(lever);
+    entities.push_back(lockbox);
 
     //Add items to the room entity list
     hall->Add(box);
     kitchen->Add(key);
-    library->Add(specialKey);
     treasureRoom->Add(letter);
     box->Add(note);
+    kitchen->Add(lever);
+    library->Add(lockbox);
+    lockbox->Add(specialKey);
     //Create the player and assign where it starts
     player = new Player("player", "The main character.", hall);
     entities.push_back(player);
@@ -121,7 +127,7 @@ void World::gameloop() {
 //This function recognises the input command of the player
 void World::parseCommand(const std::string& input)
 {
-    //Use the stringstream to get commands with format (action, entity)
+    //Use the stringstream to get commands with format (command firstArgument connector secondArgument) exemple: "put key in box"
     stringstream ss(input);
 
     std::string command;
@@ -134,6 +140,7 @@ void World::parseCommand(const std::string& input)
     ss >> connector;
     ss >> secondArg;
 
+    //Recieves the command from the player and calls the function to execute the action
     if (command == "quit") {
         isRunning = false;
         cout << "Goodbye.\n";
@@ -183,6 +190,14 @@ void World::parseCommand(const std::string& input)
     else if (command == "read") {
         readItem(firstArg);
     }
+    else if (command == "use") {
+        if (connector == "on") {
+            useItemOn(firstArg, secondArg);
+        }
+        else {
+            cout << "Use: use item on target\n";
+        }
+    }
     else {
         cout << "I don't understand that command.\n";
     }
@@ -190,7 +205,27 @@ void World::parseCommand(const std::string& input)
 
 //This function shows the help guide to the player
 void World::showHelp() const {
-    cout << "Here is the help";
+    cout << "\nAvailable commands:\n";
+    cout << "  look                         - Look around the current room.\n";
+    cout << "  go north/south/east/west     - Move to another room.\n";
+    cout << "  north/south/east/west        - Shortcut for movement.\n";
+    cout << "  take item                    - Pick up an item.\n";
+    cout << "  drop item                    - Drop an item from your inventory.\n";
+    cout << "  inventory or inv             - Show your inventory.\n";
+    cout << "  open item                    - Open a container.\n";
+    cout << "  read item                    - Read a note or letter.\n";
+    cout << "  use item on target           - Use an item on something.\n";
+    cout << "  unlock direction with key    - Unlock a locked exit.\n";
+    cout << "  quit                         - Exit the game.\n";
+
+
+    cout << "\nExample commands:\n";
+    cout << "  open box\n";
+    cout << "  take lever\n";
+    cout << "  use lever on lockbox\n";
+    cout << "  unlock east with special_key\n";
+    cout << "  go east\n";
+    cout << "  read letter\n";
 }
 
 //This function shows the actual ubication of the player and the entities in the room
@@ -288,6 +323,7 @@ void World::takeItem(const std::string& itemName)
     cout << "You picked up the " << entity->getName() << ".\n";
 }
 
+//Function to drop an item
 void World::dropItem(const std::string& itemName)
 {
     if (itemName.empty()) {
@@ -308,6 +344,7 @@ void World::dropItem(const std::string& itemName)
     cout << "You dropped the " << entity->getName() << ".\n";
 }
 
+//Shows the inventory
 void World::showInventory() const
 {
     const std::list<Entity*>& inventory = player->GetContains();
@@ -452,6 +489,10 @@ void World::openItem(const std::string& itemName)
         return;
     }
 
+    if (item->getName() == "lockbox") {
+        cout << "The lockbox is sealed shut. You need something to force it open.\n";
+        return;
+    }
     item->Open();
 
     cout << "You open the " << item->getName() << ".\n";
@@ -546,4 +587,69 @@ void World::readItem(const std::string& itemName)
     }
 
     cout << "There is nothing useful written on it.\n";
+}
+
+//Function to use items with other items.
+void World::useItemOn(const std::string& itemName, const std::string& targetName)
+{
+    if (itemName.empty() || targetName.empty()) {
+        cout << "Use: use item on target\n";
+        return;
+    }
+
+    Entity* item = player->Find(itemName);
+
+    if (item == nullptr) {
+        cout << "You don't have the " << itemName << ".\n";
+        return;
+    }
+
+    Entity* target = player->Find(targetName);
+
+    if (target == nullptr) {
+        target = player->getLocation()->Find(targetName);
+    }
+
+    if (target == nullptr) {
+        cout << "There is no " << targetName << " here.\n";
+        return;
+    }
+
+    if (itemName == "lever" && targetName == "lockbox") {
+        if (target->getType() != EntityType::Item) {
+            cout << "That won't work.\n";
+            return;
+        }
+
+        Item* lockbox = static_cast<Item*>(target);
+
+        if (lockbox->IsOpen()) {
+            cout << "The lockbox is already open.\n";
+            return;
+        }
+
+        lockbox->Open();
+
+        cout << "You force the lockbox open with the lever.\n";
+
+        if (lockbox->GetContains().empty()) {
+            cout << "It is empty.\n";
+            return;
+        }
+
+        cout << "Something falls out:\n";
+
+        while (!lockbox->GetContains().empty()) {
+            Entity* contained = lockbox->GetContains().front();
+
+            lockbox->Remove(contained);
+            player->getLocation()->Add(contained);
+
+            cout << "- " << contained->getName() << "\n";
+        }
+
+        return;
+    }
+
+    cout << "Nothing happens.\n";
 }

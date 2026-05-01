@@ -1,5 +1,6 @@
 #include "Entity.h"
 
+//Constructor
 Entity::Entity(EntityType type, const std::string& name, const std::string& description) {
 
 	m_type = type;
@@ -7,10 +8,12 @@ Entity::Entity(EntityType type, const std::string& name, const std::string& desc
 	m_description = description;
 }
 
+//Destructor
 Entity::~Entity()
 {
 
 }
+
 
 EntityType Entity::getType() const {
 	return m_type;
@@ -32,6 +35,7 @@ void Entity::setDescription(const std::string description) {
 	m_description = description;
 }
 
+//Adds a entity inside other entity
 void Entity::Add(Entity* entity)
 {
 	if (entity != nullptr) {
@@ -39,6 +43,7 @@ void Entity::Add(Entity* entity)
 	}
 }
 
+//Removes an entity from other
 void Entity::Remove(Entity* entity)
 {
 	m_contains.remove(entity);
@@ -56,6 +61,7 @@ Entity* Entity::Find(const std::string& name) const
 	return nullptr;
 }
 
+//Shows the elements that are inside other entity
 const std::list<Entity*>& Entity::GetContains() const
 {
 	return m_contains;

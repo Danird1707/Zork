@@ -2,6 +2,7 @@
 #include <string>
 
 
+//Constructor
 Exit::Exit(Room* source, Room* destination, Direction direction, const std::string& description, bool locked, const std::string& requiredKeyName)
     : Entity(EntityType::Exit, DirectionToString(direction), description){
 	m_source = source;
@@ -12,9 +13,11 @@ Exit::Exit(Room* source, Room* destination, Direction direction, const std::stri
     m_requiredKeyName = requiredKeyName;
 }
 
+//Destructor
 Exit::~Exit()
 {
 }
+
 
 Room* Exit::getDestination() const {
 	return m_destination;
@@ -28,6 +31,7 @@ Direction Exit::getDirection() const{
 	return m_direction;
 }
 
+//Converts the input directions in direction enum class object
 Direction Exit::StringToDirection(const std::string& text)
 {
     if (text == "north") return Direction::North;
