@@ -79,8 +79,6 @@ void World::gameloop() {
     cout << "Welcome to Mini Zork.\n";
     cout << "Type 'help' to see available commands.\n";
 
-    look();
-
     while (isRunning) {
         cout << "\n> ";
         std::getline(cin, input);
@@ -154,10 +152,36 @@ void World::showHelp() const {
 
 //This function shows the actual ubication of the player and the entities in the room
 void World::look() const {
+    if (player == nullptr) {
+        cout << "ERROR: player is null.\n";
+        return;
+    }
+
     Room* currentRoom = player->getLocation();
+
+    if (currentRoom == nullptr) {
+        cout << "ERROR: player location is null.\n";
+        return;
+    }
 
     cout << "\n" << currentRoom->getName() << "\n";
     cout << currentRoom->getDescription() << "\n";
+
+    cout << "\nExits:\n";
+
+    bool foundExit = false;
+
+    for (Entity* entity : currentRoom->GetContains()) {
+        if (entity->getType() == EntityType::Exit) {
+            Exit* exit = static_cast<Exit*>(entity);
+            cout << "- " << Exit::DirectionToString(exit->getDirection()) << "\n";
+            foundExit = true;
+        }
+    }
+
+    if (!foundExit) {
+        cout << "- none\n";
+    }
 
     cout << "\nYou see:\n";
 
@@ -165,13 +189,23 @@ void World::look() const {
 
     for (Entity* entity : currentRoom->GetContains()) {
         if (entity->getType() == EntityType::Item) {
-            cout << "- " << entity->getName() << "\n";
+            cout << "- " << entity->getName() << ": "
+                << entity->getDescription() << "\n";
+
+            if (!entity->GetContains().empty()) {
+                cout << "  It contains:\n";
+
+                for (Entity* contained : entity->GetContains()) {
+                    cout << "  - " << contained->getName() << "\n";
+                }
+            }
+
             foundSomething = true;
         }
     }
 
     if (!foundSomething) {
-        cout << "Nothing interesting.\n";
+        cout << "- nothing interesting\n";
     }
 }
 
