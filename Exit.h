@@ -17,7 +17,7 @@ enum class Direction {
 
 class Exit: public Entity {
 public:
-    Exit(Room* source, Room* destination, Direction direction, std::string& description);
+    Exit(Room* source, Room* destination, Direction direction, const std::string& description);
     ~Exit();
     Room* getSource() const;
     Room* getDestination() const;

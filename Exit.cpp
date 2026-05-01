@@ -2,8 +2,11 @@
 #include <string>
 
 
-Exit::Exit(Room* source, Room* destination, Direction direction, std::string& description) : Entity(EntityType::Exit, DirectionToString(direction), description){
+Exit::Exit(Room* source, Room* destination, Direction direction, const std::string& description) : Entity(EntityType::Exit, DirectionToString(direction), description){
 	m_source = source;
+    m_destination = destination;
+    m_direction = direction;
+    m_description = description;
 }
 
 Exit::~Exit()

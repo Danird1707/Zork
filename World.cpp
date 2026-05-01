@@ -36,6 +36,24 @@ void World::createWorld() {
     entities.push_back(kitchen);
     entities.push_back(library);
 
+    //Create the connections between rooms
+    Exit* hallToKitchen = new Exit(hall, kitchen, Direction::North, "A passage leading north.");
+    Exit* kitchenToHall = new Exit(kitchen, hall, Direction::South, "A passage leading south.");
+
+    Exit* hallToLibrary = new Exit(hall, library, Direction::East, "A wooden door leading east.");
+    Exit* libraryToHall = new Exit(library, hall, Direction::West, "A wooden door leading west.");
+
+    entities.push_back(hallToKitchen);
+    entities.push_back(kitchenToHall);
+    entities.push_back(hallToLibrary);
+    entities.push_back(libraryToHall);
+
+    //Define the exits of the rooms
+    hall->Add(hallToKitchen);
+    kitchen->Add(kitchenToHall);
+    hall->Add(hallToLibrary);
+    library->Add(libraryToHall);
+
     //Create the objects
     Item* key = new Item("key", "A small rusty key.");
     Item* box = new Item("box", "A wooden box.");
@@ -103,6 +121,14 @@ void World::parseCommand(const std::string& input)
     }
     else if (command == "inventory" || command == "inv") {
         showInventory();
+    }
+    else if (command == "go") {
+        go(argument);
+    }
+    else if (
+        command == "north" || command == "south" || command == "east" ||  
+        command == "west" || command == "up" || command == "down") {
+        go(command);
     }
     else {
         cout << "I don't understand that command.\n";
@@ -200,4 +226,35 @@ void World::showInventory() const
             cout << "- " << entity->getName() << "\n";
         }
     }
+}
+
+//Function for moving
+void World::go(const std::string& directionText)
+{
+    Room* currentRoom = player->getLocation();
+    if (directionText.empty()) {
+        cout << "Go where?\n";
+        return;
+    }
+
+    Direction direction = Exit::StringToDirection(directionText);
+
+    if (direction == Direction::Unknown) {
+        cout << "That is not a valid direction.\n";
+        return;
+    }
+
+
+    for (Entity* entity : currentRoom->GetContains()) {
+        if (entity->getType() == EntityType::Exit) {
+            Exit* exit = static_cast<Exit*>(entity);
+
+            if (exit->getDirection() == direction) {
+                player->SetLocation(exit->getDestination());
+                look();
+                return;
+            }
+        }
+    }
+    cout << "You can't go that way.\n";
 }

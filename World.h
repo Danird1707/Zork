@@ -31,6 +31,7 @@ private:
 	void showInventory() const;
 	void look() const;
 	void showHelp() const;
+	void go(const std::string& directionText);
 };
 
 #endif
