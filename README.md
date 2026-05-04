@@ -51,7 +51,7 @@ Available commands:
 11. Go to the fourth room with `go north`.
 12. Use `unlock east with special_key`.
 13. Use `go east`.
-14. Open or read the final letter to complete the game.
+14. Read the final letter to complete the game.
 
 ## Goal
 
