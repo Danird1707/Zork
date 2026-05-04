@@ -35,7 +35,9 @@ Available commands:
 - `use item on target`
 - `unlock direction with key`
 - `quit`
-
+- `put item on container`
+- `help`
+  
 ## Walkthrough
 
 1. Start in the Hall.
